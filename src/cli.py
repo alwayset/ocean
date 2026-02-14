@@ -108,6 +108,12 @@ def gen_key():
     print()
 
 
+async def dedup():
+    """Remove duplicate tools from the index."""
+    from src.dedup import run as run_dedup
+    await run_dedup()
+
+
 async def stats():
     """Print index stats."""
     from sqlalchemy import func, select
@@ -147,6 +153,7 @@ def main():
         print("  crawl-all             Crawl all registries")
         print("  seed                  Seed DB with curated tool data")
         print("  gen-key               Generate a new API key")
+        print("  dedup                 Remove duplicate tools")
         print("  stats                 Show index statistics")
         sys.exit(1)
 
@@ -172,6 +179,8 @@ def main():
         asyncio.run(seed())
     elif command == "gen-key":
         gen_key()
+    elif command == "dedup":
+        asyncio.run(dedup())
     elif command == "stats":
         asyncio.run(stats())
     else:

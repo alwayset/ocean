@@ -1,0 +1,13 @@
+.env
+.venv
+__pycache__
+*.pyc
+.git
+.gitignore
+.ruff_cache
+.mypy_cache
+demo/
+sdk/
+tests/
+PLAN.md
+CHANGELOG.md

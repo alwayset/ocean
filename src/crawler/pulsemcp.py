@@ -62,6 +62,7 @@ async def fetch_all_servers(client: httpx.AsyncClient) -> list[dict]:
         if not data.get("next") or not servers:
             break
         offset += PAGE_SIZE
+        await asyncio.sleep(1)  # Rate limit: 1 req/sec
 
     return all_servers
 
