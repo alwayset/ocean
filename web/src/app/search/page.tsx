@@ -75,7 +75,7 @@ function SearchContent() {
       {error && (
         <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
           {error}. Make sure the API server is running at{" "}
-          <code className="font-mono">localhost:8000</code>.
+          <code className="font-mono">the Ocean API</code>.
         </div>
       )}
 

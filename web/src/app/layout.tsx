@@ -54,7 +54,7 @@ export default function RootLayout({
                 Stats
               </Link>
               <a
-                href="http://localhost:8000/docs"
+                href="https://ocean-api-production.up.railway.app/docs"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-full border border-border px-4 py-1.5 text-sm text-muted hover:border-accent hover:text-accent transition-colors"

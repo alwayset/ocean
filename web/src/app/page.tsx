@@ -75,8 +75,8 @@ export default function Home() {
             Quick Start
           </p>
           <pre className="mt-3 overflow-x-auto font-mono text-sm leading-relaxed">
-            <code>{`curl -X POST http://localhost:8000/v1/discover \\
-  -H "Content-Type: application/json" \\
+            <code>{`curl -X POST https://ocean-api-production.up.railway.app/v1/discover \\
+  -H "X-API-Key: YOUR_KEY" -H "Content-Type: application/json" \\
   -d '{"intent": "send an email with attachments"}'`}</code>
           </pre>
         </div>
