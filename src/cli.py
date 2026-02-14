@@ -25,6 +25,52 @@ async def crawl():
             print(f"  Errors: {stats['errors']}")
 
 
+async def crawl_smithery():
+    """Crawl Smithery registry for MCP tools."""
+    from src.crawler.smithery import crawl_smithery as _crawl
+    from src.db import async_session
+
+    print("\n=== Crawling Smithery ===")
+    async with async_session() as db:
+        stats = await _crawl(db)
+    print(f"\nSmithery crawl complete:")
+    for k, v in stats.items():
+        print(f"  {k}: {v}")
+
+
+async def crawl_glama(max_pages: int = 0):
+    """Crawl Glama registry for MCP server metadata."""
+    from src.crawler.glama import crawl_glama as _crawl
+    from src.db import async_session
+
+    print("\n=== Crawling Glama ===")
+    async with async_session() as db:
+        stats = await _crawl(db, max_pages=max_pages)
+    print(f"\nGlama crawl complete:")
+    for k, v in stats.items():
+        print(f"  {k}: {v}")
+
+
+async def crawl_pulsemcp():
+    """Crawl PulseMCP for MCP server metadata."""
+    from src.crawler.pulsemcp import crawl_pulsemcp as _crawl
+    from src.db import async_session
+
+    print("\n=== Crawling PulseMCP ===")
+    async with async_session() as db:
+        stats = await _crawl(db)
+    print(f"\nPulseMCP crawl complete:")
+    for k, v in stats.items():
+        print(f"  {k}: {v}")
+
+
+async def crawl_all():
+    """Crawl all registries sequentially."""
+    await crawl_smithery()
+    await crawl_glama()
+    await crawl_pulsemcp()
+
+
 async def seed():
     """Seed the database with curated MCP tool data."""
     from src.seed_data import seed as run_seed
@@ -84,10 +130,14 @@ def main():
         print("Ocean — Semantic discovery engine for AI agent tools\n")
         print("Usage: python -m src.cli <command> [args]\n")
         print("Commands:")
-        print("  search <query>   Search for tools by intent")
-        print("  crawl            Crawl seed domains for MCP servers")
-        print("  seed             Seed DB with curated tool data")
-        print("  stats            Show index statistics")
+        print("  search <query>        Search for tools by intent")
+        print("  crawl                 Crawl seed domains for .well-known/mcp")
+        print("  crawl-smithery        Crawl Smithery registry (~7K tools)")
+        print("  crawl-glama [pages]   Crawl Glama registry (~17K servers)")
+        print("  crawl-pulsemcp        Crawl PulseMCP registry (~8K servers)")
+        print("  crawl-all             Crawl all registries")
+        print("  seed                  Seed DB with curated tool data")
+        print("  stats                 Show index statistics")
         sys.exit(1)
 
     command = sys.argv[1]
@@ -99,6 +149,15 @@ def main():
         asyncio.run(search(query))
     elif command == "crawl":
         asyncio.run(crawl())
+    elif command == "crawl-smithery":
+        asyncio.run(crawl_smithery())
+    elif command == "crawl-glama":
+        max_pages = int(sys.argv[2]) if len(sys.argv) > 2 else 0
+        asyncio.run(crawl_glama(max_pages))
+    elif command == "crawl-pulsemcp":
+        asyncio.run(crawl_pulsemcp())
+    elif command == "crawl-all":
+        asyncio.run(crawl_all())
     elif command == "seed":
         asyncio.run(seed())
     elif command == "stats":
