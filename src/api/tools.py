@@ -20,7 +20,9 @@ from src.models.provider import Provider
 from src.models.tool import Tool
 from src.search.embeddings import build_tool_text, embed_text
 
-router = APIRouter(prefix="/v1", tags=["tools"])
+from src.auth import require_api_key
+
+router = APIRouter(prefix="/v1", tags=["tools"], dependencies=[Depends(require_api_key)])
 
 
 @router.get("/tools", response_model=ToolListResponse)

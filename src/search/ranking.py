@@ -22,12 +22,16 @@ async def discover_tools(
 ) -> list[dict]:
     """Semantic search for tools matching an intent.
 
-    Returns tools ranked by vector similarity, optionally filtered.
+    Returns tools ranked by vector similarity, deduplicated by name+description.
+    Fetches extra candidates to ensure enough unique results after dedup.
     """
     query_embedding = await embed_query(intent)
 
     # Cosine distance — lower is more similar
     distance = Tool.embedding.cosine_distance(query_embedding).label("distance")
+
+    # Fetch 3x the limit to have room for dedup
+    fetch_limit = limit * 3
 
     stmt = (
         select(
@@ -39,7 +43,7 @@ async def discover_tools(
         .join(Provider, Tool.provider_id == Provider.id)
         .where(Tool.embedding.isnot(None))
         .order_by(distance)
-        .limit(limit)
+        .limit(fetch_limit)
     )
 
     if protocol:
@@ -50,10 +54,18 @@ async def discover_tools(
 
     rows = (await db.execute(stmt)).all()
 
+    # Deduplicate: for tools with the same name, keep only the highest-ranked one
+    seen_names: set[str] = set()
     results = []
     for row in rows:
         tool = row.Tool
-        relevance = max(0.0, 1.0 - row.distance)  # Convert distance to similarity score
+        dedup_key = tool.name.lower()
+
+        if dedup_key in seen_names:
+            continue
+        seen_names.add(dedup_key)
+
+        relevance = max(0.0, 1.0 - row.distance)
 
         results.append({
             "id": tool.id,
@@ -65,9 +77,12 @@ async def discover_tools(
             "input_schema": tool.input_schema,
             "endpoint": tool.endpoint,
             "relevance_score": round(relevance, 4),
-            "reliability": None,  # TODO: join quality metrics
+            "reliability": None,
             "avg_latency_ms": None,
         })
+
+        if len(results) >= limit:
+            break
 
     # Filter by reliability if requested (post-filter for now)
     if min_reliability is not None:

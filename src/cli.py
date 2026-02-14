@@ -99,6 +99,15 @@ async def search(query: str, limit: int = 10):
         print()
 
 
+def gen_key():
+    """Generate a new API key."""
+    from src.auth import generate_api_key
+    key = generate_api_key()
+    print(f"\nNew API key: {key}")
+    print("Use it in requests: curl -H 'X-API-Key: {key}' ...")
+    print()
+
+
 async def stats():
     """Print index stats."""
     from sqlalchemy import func, select
@@ -137,6 +146,7 @@ def main():
         print("  crawl-pulsemcp        Crawl PulseMCP registry (~8K servers)")
         print("  crawl-all             Crawl all registries")
         print("  seed                  Seed DB with curated tool data")
+        print("  gen-key               Generate a new API key")
         print("  stats                 Show index statistics")
         sys.exit(1)
 
@@ -160,6 +170,8 @@ def main():
         asyncio.run(crawl_all())
     elif command == "seed":
         asyncio.run(seed())
+    elif command == "gen-key":
+        gen_key()
     elif command == "stats":
         asyncio.run(stats())
     else:

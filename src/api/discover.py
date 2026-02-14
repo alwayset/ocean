@@ -4,10 +4,11 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.schemas import DiscoverRequest, DiscoverResponse, ToolResult
+from src.auth import require_api_key
 from src.db import get_db
 from src.search.ranking import discover_tools
 
-router = APIRouter(prefix="/v1", tags=["discovery"])
+router = APIRouter(prefix="/v1", tags=["discovery"], dependencies=[Depends(require_api_key)])
 
 
 @router.post("/discover", response_model=DiscoverResponse)
